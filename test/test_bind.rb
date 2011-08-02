@@ -26,10 +26,10 @@ class ProcBindTest < Test::Unit::TestCase
     assert_raise(ArgumentError){ lambda{|x,y| x}.bind(:_1, :_2, :_3)[1,2,3] }
 
     if RUBY_VERSION >= '1.9'
-      assert_nothing_raised{ proc{|x,y,z| x+y*z}.bind(:_1)[1] }
-      assert_nothing_raised{ proc{|x,y,z| x+y*z}.bind(:_1)[1,2,3] }
+      assert_nothing_raised{ proc{|x,y,z| x}.bind(:_1)[1] }
+      assert_nothing_raised{ proc{|x,y,z| x}.bind(:_1)[1,2,3] }
       assert_nothing_raised{ proc{|x,y| x}.bind(:_1, :_2, :_3)[1,2,3] }
-      assert_raise(ArgumentError){ lambda{|x,y,z| x+y*z}.bind(:_1) }
+      assert_raise(ArgumentError){ lambda{|x,y,z| x}.bind(:_1) }
       assert_raise(ArgumentError){ lambda{|x,y,*z| x}.bind(:_1) }
       assert_nothing_raised{ lambda{|x,*y| x}.bind(:_1) }
       assert_raise(ArgumentError){ lambda{|x| x}.bind(:_1, :_2) }
