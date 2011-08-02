@@ -105,10 +105,12 @@ class CurryTest < Test::Unit::TestCase
   end
 
   def test_block()
-    b = proc{|x,y,z,&p| p.call(x,y,z)}
-    assert_equal(6, b.curry(3).call(1,2,3){|i,j,k| i+j+k})
-    assert_equal(6, b.curry(3).[](1,2,3){|i,j,k| i+j+k})
-    assert_equal(6, b.curry(3)[1,2].call(3){|i,j,k| i+j+k})
-    assert_equal(6, b.curry(3)[1][2].call(3){|i,j,k| i+j+k})
+    if RUBY_VERSION >= '1.9'
+      b = proc{|x,y,z,&p| p.call(x,y,z)}
+      assert_equal(6, b.curry(3).call(1,2,3){|i,j,k| i+j+k})
+      assert_equal(6, b.curry(3).[](1,2,3){|i,j,k| i+j+k})
+      assert_equal(6, b.curry(3)[1,2].call(3){|i,j,k| i+j+k})
+      assert_equal(6, b.curry(3)[1][2].call(3){|i,j,k| i+j+k})
+    end
   end
 end

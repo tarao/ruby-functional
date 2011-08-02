@@ -11,9 +11,16 @@ class Proc
       end
     end
 
-    def self.make(f, args, n)
-      b = proc{|*x, &p| body(f, args+x, n, &p)}
-      return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
+    if RUBY_VERSION >= '1.9'
+      def self.make(f, args, n)
+        b = proc{|*x, &p| body(f, args+x, n, &p)}
+        return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
+      end
+    else
+      def self.make(f, args, n)
+        b = proc{|*x| body(f, args+x, n)}
+        return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
+      end
     end
   end
 
