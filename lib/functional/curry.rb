@@ -2,12 +2,17 @@ require 'functional/internal'
 
 class Proc
   class Curry
-    def self.body(f, args, n)
-      return args.length < n ? make(f, args, n) : f.call(*args)
+    def self.body(f, args, n, &block)
+      if args.length < n
+        warn('given block not used') if block
+        return make(f, args, n)
+      else
+        return f.call(*args, &block)
+      end
     end
 
     def self.make(f, args, n)
-      b = proc{|*x| body(f, args+x, n)}
+      b = proc{|*_x, &_p| body(f, args+_x, n, &_p)}
       return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
     end
   end

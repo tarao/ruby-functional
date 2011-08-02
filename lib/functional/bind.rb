@@ -16,10 +16,10 @@ class Proc
     end
 
     def self.make(f, args)
-      return self.new do |*x|
+      return self.new do |*x, &p|
         Internal.assert_arg_len(f, x.length,
                                 proc{args.map{|a|max_index(a)}.max})
-        f.call(*fill(args, x))
+        f.call(*fill(args, x), &p)
       end.__send__(:set_bind_args, args)
     end
 
@@ -51,6 +51,18 @@ class Proc
 end
 
 class Symbol
+  def _to_proc()
+    # Ruby 1.8 workaround to accept block
+    return Proc.new do |*args, &p|
+      raise ArgumentError, 'no receiver given' if args.length < 1
+      args[0].__send__(self, *args[1..-1], &p)
+    end
+  end
+
+  unless RUBY_VERSION >= '1.9'
+    alias :to_proc :_to_proc
+  end
+
   def argument_index?() return to_s =~ /^_([1-9][0-9]*)$/ && $1.to_i end
   def to_argument_index() return argument_index? end
   def [](*args) return self.to_proc.bind(*args) end

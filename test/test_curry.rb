@@ -103,4 +103,12 @@ class CurryTest < Test::Unit::TestCase
       assert_nothing_raised{ b.curry(1) }
     end
   end
+
+  def test_block()
+    b = proc{|x,y,z,&p| p.call(x,y,z)}
+    assert_equal(6, b.curry(3).call(1,2,3){|i,j,k| i+j+k})
+    assert_equal(6, b.curry(3).[](1,2,3){|i,j,k| i+j+k})
+    assert_equal(6, b.curry(3)[1,2].call(3){|i,j,k| i+j+k})
+    assert_equal(6, b.curry(3)[1][2].call(3){|i,j,k| i+j+k})
+  end
 end

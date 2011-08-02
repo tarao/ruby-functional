@@ -85,4 +85,10 @@ class SymbolBindTest < Test::Unit::TestCase
 
     assert_equal(4, :+[:_1.hoge, 3][x])
   end
+
+  def test_bind()
+    map = proc{|r,&p| r.map(&p)}
+    assert_equal([ 2, 6, 12 ], map.bind([1,2,3]).call(&:+[:_1, :*[:_1, :_1]]))
+    assert_equal([ 2, 6, 12 ], :map[ [1,2,3] ].[](&:+[:_1, :*[:_1, :_1]]))
+  end
 end
