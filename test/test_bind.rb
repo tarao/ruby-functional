@@ -75,7 +75,6 @@ class SymbolBindTest < Test::Unit::TestCase
   def test_bind()
     assert_equal(6, :+[:_1, :_1][3], 6)
     assert_equal(2, :-[:_2, :_1][3, 5])
-    b = :+.to_proc.bind(:_1, :*.to_proc.bind(:_1, :_1))
     assert_equal([ 2, 6, 12 ], [ 1, 2, 3 ].map(&:+[:_1, :*[:_1, :_1]]))
   end
 

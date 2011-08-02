@@ -12,7 +12,7 @@ class Proc
     end
 
     def self.make(f, args, n)
-      b = proc{|*_x, &_p| body(f, args+_x, n, &_p)}
+      b = proc{|*x, &p| body(f, args+x, n, &p)}
       return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
     end
   end
