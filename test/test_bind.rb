@@ -73,16 +73,11 @@ class SymbolBindTest < Test::Unit::TestCase
   end
 
   def test_bind()
+    assert_equal(5, :_1[5])
+    assert_equal(3, :_3[1, 2, 3])
     assert_equal(6, :+[:_1, :_1][3], 6)
     assert_equal(2, :-[:_2, :_1][3, 5])
     assert_equal([ 2, 6, 12 ], [ 1, 2, 3 ].map(&:+[:_1, :*[:_1, :_1]]))
-  end
-
-  def test_send()
-    x = {}
-    def x.hoge() return 1 end
-
-    assert_equal(4, :+[:_1.hoge, 3][x])
   end
 
   def test_block()

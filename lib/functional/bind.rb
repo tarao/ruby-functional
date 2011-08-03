@@ -2,6 +2,25 @@ require 'functional/internal'
 
 class Proc
   class Bind < Proc
+    module Variable
+      def argument_index?()
+        return to_s =~ /^_([1-9][0-9]*)$/ && $1.to_i
+      end
+
+      def to_argument_index() return argument_index? end
+      def [](*args) return call(*args) if argument_index? end
+
+      def call(*args)
+        i = to_argument_index - 1
+        return args[i] if argument_index? && i < args.length
+        return self
+      end
+    end
+
+    def self.index?(obj)
+      return obj.respond_to?(:argument_index?) && obj.argument_index?
+    end
+
     def self.body(f, formal, actual, &block)
       Internal.assert_arg_len(f, actual.length,
                               proc{formal.map{|a|max_index(a)}.max})
@@ -9,16 +28,7 @@ class Proc
     end
 
     def self.fill(formal, actual)
-      return formal.map do |a|
-        if a.is_a?(Symbol) && a.argument_index?
-          i = a.to_argument_index
-          0 < i && i <= actual.length ? actual[i-1] : a
-        elsif a.is_a?(self)
-          a.call(*actual)
-        else
-          a
-        end
-      end
+      return formal.map{|a| index?(a) || a.is_a?(self) ? a.call(*actual) : a}
     end
 
     if RUBY_VERSION >= '1.9'
@@ -63,16 +73,10 @@ class Proc
 end
 
 class Symbol
-  def argument_index?() return to_s =~ /^_([1-9][0-9]*)$/ && $1.to_i end
-  def to_argument_index() return argument_index? end
-  def [](*args) return self.to_proc.bind(*args) end
+  include Proc::Bind::Variable
 
-  def method_missing(name, *args)
-    if argument_index?
-      name = name.to_s
-      name = name[1..-1] if name =~ /^_/
-      return name.to_sym[self, *args]
-    end
-    super
+  def [](*args)
+    return super if argument_index?
+    return to_proc.bind(*args)
   end
 end
