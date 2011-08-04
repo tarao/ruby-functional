@@ -80,6 +80,11 @@ require 'functional/lambda/internal'
 
 class Proc
   class Bind
+    def self.max_index(obj)
+      return obj.bind_arity if Lambda.bound?(obj)
+      return 0
+    end
+
     def self.fill(formal, actual)
       return formal.map do |a|
         Lambda.bound?(a) ? a.call(*actual) : Lambda.unprotect(a)
@@ -96,6 +101,7 @@ class Symbol
   include Lambda::Expression
 
   def lambda?() return argument_index? end
+  def bind_arity() return to_argument_index end
 end
 
 class Object
