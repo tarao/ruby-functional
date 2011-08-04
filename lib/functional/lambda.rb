@@ -63,5 +63,4 @@ end
 
 class Object
   def to_lambda() Lambda.lambda?(self) ? self : proc{|x|x}.bind(self) end
-  def _() return self end
 end

@@ -4,7 +4,7 @@ class Proc
   class Bind < Proc
     module Variable
       def argument_index?()
-        return to_s =~ /^_([1-9][0-9]*)$/ && $1.to_i
+        return to_s =~ /^_([1-9][0-9]*)?$/ && ($1||1).to_i
       end
 
       def to_argument_index() return argument_index? end
@@ -24,7 +24,7 @@ class Proc
     def self.body(f, formal, actual, &block)
       Internal.assert_arg_len(f, actual.length,
                               proc{formal.map{|a|max_index(a)}.max})
-      f.call(*fill(formal, actual), &block)
+      return f.call(*fill(formal, actual), &block)
     end
 
     def self.fill(formal, actual)
