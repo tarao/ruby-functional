@@ -2,7 +2,24 @@ require 'functional/bind'
 
 module Lambda
   def lambda?(obj) return obj.respond_to?(:lambda?) && obj.lambda? end
-  module_function :lambda?
+  def protected?(obj) return obj.respond_to?(:protected?) && obj.protected? end
+  def bound?(obj) return lambda?(obj) && !protected?(obj) end
+
+  def protect(obj)
+    obj.protect if obj.respond_to?(:protect)
+    return obj
+  end
+
+  def unprotect(obj)
+    obj.unprotect if obj.respond_to?(:unprotect)
+    return obj
+  end
+
+  module_function :lambda?, :protected?, :bound?, :protect, :unprotect
+
+  module Primitive
+    def protect(obj) return Lambda.protect(obj) end
+  end
 
   module Variable
     def method_missing(name, *args)
@@ -22,6 +39,20 @@ module Lambda
       end
       return _method_missing(name, *args)
     end
+
+    def protect()
+      @protect = 0 unless @protect
+      @protect += 1
+      return self
+    end
+
+    def unprotect()
+      @protect = 1 if !@protect || @protect < 1
+      @protect -= 1
+      return self
+    end
+
+    def protected?() return @protect && @protect > 0 end
   end
 
   module Statement
@@ -49,6 +80,12 @@ require 'functional/lambda/internal'
 
 class Proc
   class Bind
+    def self.fill(formal, actual)
+      return formal.map do |a|
+        Lambda.bound?(a) ? a.call(*actual) : Lambda.unprotect(a)
+      end
+    end
+
     include Lambda::Expression
 
     def lambda?() return true end

@@ -46,9 +46,17 @@ class ProcBindTest < Test::Unit::TestCase
     end
   end
 
-  def test_nest()
+  def test_nest1()
     b = :+.to_proc.bind(:_1, :*.to_proc.bind(:_1, :_1))
     assert_equal([ 2, 6, 12 ], [ 1, 2, 3 ].map(&b))
+  end
+
+  def test_nest2()
+    foo = proc{|x| x+1}
+    bar = proc{|x,y| x-y}
+
+    assert_equal(4, foo.bind(:_1)[3])
+    assert_equal(-3, bar.bind(1, :_1).bind(:_2)[3, 4])
   end
 end
 

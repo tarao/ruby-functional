@@ -38,6 +38,7 @@ class LambdaVariableTest < Test::Unit::TestCase
 end
 
 class LambdaTest < Test::Unit::TestCase
+  include Lambda::Primitive
   include Lambda::Variable
   include Lambda::Statement
 
@@ -71,6 +72,19 @@ class LambdaTest < Test::Unit::TestCase
     assert_equal([4, 5, 6], [1, 2, 3].map(& _ + 3 ))
     assert_equal([16, 20, 24], [1, 2, 3].map(& (_ + 3)*4 ))
     assert_equal(['16', '20', '24'], [1, 2, 3].map(& :to_s[ (_ + 3)*4 ] ))
+  end
+
+  def test_nest()
+    assert_equal([ 2, 6, 12 ], [ 1, 2, 3 ].map(& _ + _ * _))
+  end
+
+  def test_protect()
+    assert_equal(2, (_1 + 2 - _1)[3])
+    assert_equal(3, (protect(_1 + 2) - _1)[3][4])
+    assert_equal(-1, (protect(_1) - (_1 + 2))[3][4])
+    assert_equal(-4, (protect(_1) - protect(_1) * 2)[3][4])
+    assert_equal(-3, (protect(protect(_1)+_1) - protect(_1) * _1)[3][4][5])
+    assert_equal(-7, (protect(protect(_1)) - protect(_1) * _1)[3][4][5])
   end
 
   def test_if()
