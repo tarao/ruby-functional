@@ -12,8 +12,14 @@ module Lambda
     class If < Proc::Bind
       include Statement
 
+      if RUBY_VERSION >= '1.9'
+        def self.empty_block?(block) return block.arity == 0 end
+      else
+        def self.empty_block?(block) return block.arity == -1 end
+      end
+
       def self.bind(&block)
-        block = block.call if block.arity == -1
+        block = block.call if empty_block?(block)
         block = block.to_lambda
         return block
       end
