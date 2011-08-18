@@ -1,4 +1,4 @@
-require 'functional/internal'
+require 'functional/util'
 
 class Proc
   class Curry
@@ -14,12 +14,12 @@ class Proc
     if RUBY_VERSION >= '1.9'
       def self.make(f, args, n)
         b = proc{|*x, &p| body(f, args+x, n, &p)}
-        return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
+        return Functional::Util.may_send(f, :lambda?) ? lambda(&b) : proc(&b)
       end
     else
       def self.make(f, args, n)
         b = proc{|*x| body(f, args+x, n)}
-        return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
+        return Functional::Util.may_send(f, :lambda?) ? lambda(&b) : proc(&b)
       end
     end
 
@@ -28,7 +28,7 @@ class Proc
       marity = -marity - 1 if marity < 0
 
       if n
-        Internal.assert_arg_len(p, n, marity)
+        Functional::Util.assert_arg_len(p, n, marity)
       else
         n = marity
       end

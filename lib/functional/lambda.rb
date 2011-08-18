@@ -1,19 +1,15 @@
+require 'functional/util'
 require 'functional/bind'
 
 module Lambda
-  def lambda?(obj) return obj.respond_to?(:lambda?) && obj.lambda? end
-  def protected?(obj) return obj.respond_to?(:protected?) && obj.protected? end
+  include Functional
+
+  def lambda?(obj) return Util.may_send(obj, :lambda?) end
+  def protected?(obj) return Util.may_send(obj, :protected?) end
   def bound?(obj) return lambda?(obj) && !protected?(obj) end
+  def protect(obj) Util.may_send(obj, :protect); return obj end
 
-  def protect(obj)
-    obj.protect if obj.respond_to?(:protect)
-    return obj
-  end
-
-  def unprotect(obj)
-    obj.unprotect if obj.respond_to?(:unprotect)
-    return obj
-  end
+  def unprotect(obj) Util.may_send(obj, :unprotect); return obj end
 
   module_function :lambda?, :protected?, :bound?, :protect, :unprotect
 

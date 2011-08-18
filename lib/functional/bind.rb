@@ -1,4 +1,4 @@
-require 'functional/internal'
+require 'functional/util'
 require 'functional/curry'
 
 class Proc
@@ -19,12 +19,12 @@ class Proc
     end
 
     def self.index?(obj)
-      return obj.respond_to?(:argument_index?) && obj.argument_index?
+      return Functional::Util.may_send(obj, :argument_index?)
     end
 
     def self.body(f, formal, actual, &block)
-      Internal.assert_arg_len(f, actual.length,
-                              proc{formal.map{|a|max_index(a)}.max})
+      Functional::Util.assert_arg_len(f, actual.length,
+                                      proc{formal.map{|a|max_index(a)}.max})
       return f.call(*fill(formal, actual), &block)
     end
 
@@ -69,7 +69,7 @@ class Proc
     marity = arity
     marity = -marity - 1 if marity < 0
 
-    Internal.assert_arg_len(self, args.length, marity)
+    Functional::Util.assert_arg_len(self, args.length, marity)
     return Bind.make(self, args)
   end
 end
