@@ -4,11 +4,14 @@ require 'functional/bind'
 module Lambda
   include Functional
 
-  def lambda?(obj) return Util.may_send(obj, :lambda?) end
+  def lambda?(obj)
+    return obj.argument_index? if obj.is_a?(Proc::Bind::Variable)
+    return obj.is_a?(Expression)
+  end
+
   def protected?(obj) return Util.may_send(obj, :protected?) end
   def bound?(obj) return lambda?(obj) && !protected?(obj) end
   def protect(obj) Util.may_send(obj, :protect); return obj end
-
   def unprotect(obj) Util.may_send(obj, :unprotect); return obj end
 
   module_function :lambda?, :protected?, :bound?, :protect, :unprotect
@@ -28,7 +31,7 @@ module Lambda
   module Expression
     alias :_method_missing :method_missing
     def method_missing(name, *args)
-      if lambda?
+      if Lambda.lambda?(self)
         name = name.to_s
         name = name[1..-1] if name =~ /^_/
         return name.to_sym[self, *args]
@@ -88,18 +91,17 @@ class Proc
     end
 
     include Lambda::Expression
-
-    def lambda?() return true end
   end
 end
 
 class Symbol
   include Lambda::Expression
 
-  def lambda?() return argument_index? end
   def bind_arity() return to_argument_index end
 end
 
 class Object
-  def to_lambda() Lambda.lambda?(self) ? self : proc{|x|x}.bind(self) end
+  def to_lambda()
+    return Lambda.lambda?(self) ? self : proc{|x|x}.bind(self)
+  end
 end
