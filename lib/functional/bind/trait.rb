@@ -8,7 +8,11 @@ class Proc
 
         def to_argument_index() return argument_index? end
         def bind_arity() return to_argument_index end
-        def [](*args) return call(*args) if argument_index? end
+
+        def [](*args)
+          return call(*args) if argument_index?
+          return super
+        end
 
         def call(*args)
           i = to_argument_index - 1
@@ -19,7 +23,7 @@ class Proc
 
       module Method
         def [](*args)
-          return super if argument_index?
+          return super if Functional::Util.may_send(self, :argument_index?)
           return to_proc.bind(*args)
         end
       end

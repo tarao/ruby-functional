@@ -5,22 +5,27 @@ require 'functional/bind/internal'
 
 class Proc
   class Bind < Proc
-    module Variable
-      include Trait::Variable
-    end
+    Variable = Trait::Variable
 
     class Syntax
       class Symbol
         def self.as_variable()
-          ::Symbol.class_eval{ include Proc::Bind::Variable}
+          return if ::Symbol <= Trait::Variable
+          ::Symbol.class_eval do
+            def [](*args) super end
+            include Trait::Variable
+          end
         end
       end
 
       class Method
         def self.from_symbol()
+          return proc{} if ::Symbol <= Trait::Method
           return proc do
-            ::Symbol.module_eval{ include Proc::Bind::Trait::Method }
-            Variable.module_eval{ include Proc::Bind::Trait::Method }
+            ::Symbol.class_eval do
+              def [](*args) super end
+              include Trait::Method
+            end
           end
         end
       end
@@ -28,7 +33,7 @@ class Proc
 
     def self.var(n=1)
       v = "_#{n}"
-      class << v; include Proc::Bind::Variable end
+      class << v; include Trait::Variable end
       return v
     end
 
