@@ -5,6 +5,11 @@ require 'functional/lambda'
 class LambdaVariableTest < Test::Unit::TestCase
   Variable = Lambda::Internal::Variable
 
+  def setup()
+    Proc::Bind::Syntax::Symbol.as_variable
+    Proc::Bind::Syntax::Method.from_symbol[]
+  end
+
   def test_methods()
     assert(Variable.new(:foo).respond_to?(:argument_index?))
     assert(Variable.new(:foo).respond_to?(:to_argument_index))
@@ -41,6 +46,11 @@ class LambdaTest < Test::Unit::TestCase
   include Lambda::Primitive
   include Lambda::Variable
   include Lambda::Statement
+
+  def setup()
+    Proc::Bind::Syntax::Symbol.as_variable
+    Proc::Bind::Syntax::Method.from_symbol[]
+  end
 
   def test_var()
     assert_equal(2, :-[_2, _1][3, 5])

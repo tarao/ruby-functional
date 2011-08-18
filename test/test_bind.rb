@@ -3,6 +3,11 @@ require File.join(File.dirname($0), 'lib')
 require 'functional/bind'
 
 class ProcBindTest < Test::Unit::TestCase
+  def setup()
+    Proc::Bind::Syntax::Symbol.as_variable
+    Proc::Bind::Syntax::Method.from_symbol[]
+  end
+
   def test_methods()
     assert(Proc.new{}.respond_to?(:bind))
     assert(proc{}.respond_to?(:bind))
@@ -66,6 +71,11 @@ class ProcBindTest < Test::Unit::TestCase
 end
 
 class SymbolBindTest < Test::Unit::TestCase
+  def setup()
+    Proc::Bind::Syntax::Symbol.as_variable
+    Proc::Bind::Syntax::Method.from_symbol[]
+  end
+
   def test_methods()
     assert(:foo.respond_to?(:argument_index?))
     assert(:foo.respond_to?(:to_argument_index))

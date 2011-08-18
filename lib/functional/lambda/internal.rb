@@ -6,7 +6,6 @@ module Lambda
 
       def initialize(v) @v = v end
       def to_s() return @v.to_s end
-      def bind_arity() return to_argument_index end
     end
 
     class If < Proc::Bind

@@ -4,6 +4,13 @@ require 'functional/bind'
 module Lambda
   include Functional
 
+  Syntax = Proc::Bind::Syntax
+  Syntax.module_eval do
+    def primitive() Kernel.module_eval{ include Lambda::Primitive } end
+    def variable() Kernel.module_eval{ include Lambda::Variable } end
+    def statement() Kernel.module_eval{ include Lambda::Statement } end
+  end
+
   def lambda?(obj)
     return obj.argument_index? if obj.is_a?(Proc::Bind::Variable)
     return obj.is_a?(Expression)
@@ -34,7 +41,7 @@ module Lambda
       if Lambda.lambda?(self)
         name = name.to_s
         name = name[1..-1] if name =~ /^_/
-        return name.to_sym[self, *args]
+        return name.to_sym.to_proc.bind(self, *args)
       end
       return _method_missing(name, *args)
     end
@@ -69,19 +76,21 @@ module Lambda
       end.__send__(:set_place_holder, holder)
     end
 
-    def unless_(cond, &block)
-      return if_(cond ^ true, &block)
-    end
+    def unless_(cond, &block) return if_(cond ^ true, &block) end
   end
 end
 
 require 'functional/lambda/internal'
+require 'functional/lambda/context'
 
 class Proc
-  class Bind
+  class Bind < Proc
+    module Variable
+      include Lambda::Expression
+    end
+
     def self.max_index(obj)
-      return obj.bind_arity if Lambda.bound?(obj)
-      return 0
+      return (Lambda.bound?(obj) && obj.bind_arity) || 0
     end
 
     def self.fill(formal, actual)
@@ -92,12 +101,6 @@ class Proc
 
     include Lambda::Expression
   end
-end
-
-class Symbol
-  include Lambda::Expression
-
-  def bind_arity() return to_argument_index end
 end
 
 class Object
