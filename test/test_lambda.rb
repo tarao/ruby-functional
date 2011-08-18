@@ -85,6 +85,9 @@ class LambdaTest < Test::Unit::TestCase
     assert_equal(-4, (protect(_1) - protect(_1) * 2)[3][4])
     assert_equal(-3, (protect(protect(_1)+_1) - protect(_1) * _1)[3][4][5])
     assert_equal(-7, (protect(protect(_1)) - protect(_1) * _1)[3][4][5])
+    assert_equal(-1, :send[ protect(:-), :[], _1, protect(_1)][1][2])
+    assert_equal(-2, :send[ protect(:send), :[], protect(protect(:-)),
+                            :[], _1, protect(protect(_1))][1][2][3])
   end
 
   def test_if()
