@@ -1,4 +1,5 @@
 require 'functional/internal'
+require 'functional/curry'
 
 class Proc
   class Bind < Proc
@@ -56,7 +57,8 @@ class Proc
     end
 
     attr_reader :bind_args
-    def bind_arity() bind_args.map{|a| self.class.max_index(a)}.max end
+    def bind_arity() return bind_args.map{|a| self.class.max_index(a)}.max end
+    def curry(n=nil) return Curry.curry(self, n || bind_arity) end
 
     private
 

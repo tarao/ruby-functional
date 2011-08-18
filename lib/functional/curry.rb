@@ -22,18 +22,22 @@ class Proc
         return (f.respond_to?(:lambda?) && f.lambda?) ? lambda(&b) : proc(&b)
       end
     end
+
+    def self.curry(p, n=nil)
+      marity = p.arity
+      marity = -marity - 1 if marity < 0
+
+      if n
+        Internal.assert_arg_len(p, n, marity)
+      else
+        n = marity
+      end
+
+      return make(p, [], n)
+    end
   end
 
-  def curry(n = nil)
-    marity = arity
-    marity = -marity - 1 if marity < 0
-
-    if n
-      Internal.assert_arg_len(self, n, marity)
-    else
-      n = marity
-    end
-
-    return Curry.make(self, [], n)
+  unless RUBY_VERSION >= '1.9'
+    def curry(n=nil) return Curry.curry(self, n) end
   end
 end

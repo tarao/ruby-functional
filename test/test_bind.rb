@@ -58,6 +58,11 @@ class ProcBindTest < Test::Unit::TestCase
     assert_equal(4, foo.bind(:_1)[3])
     assert_equal(-3, bar.bind(1, :_1).bind(:_2)[3, 4])
   end
+
+  def test_curry()
+    b = :+.to_proc.bind(:_1, :-.to_proc.bind(:_2, :_3)).curry
+    assert_equal(0, b[1][2][3])
+  end
 end
 
 class SymbolBindTest < Test::Unit::TestCase
