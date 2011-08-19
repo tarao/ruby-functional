@@ -1,5 +1,5 @@
 require 'functional/curry'
 require 'functional/lambda'
-Lambda::Syntax.primitive
-Lambda::Syntax.variable
-Lambda::Syntax.statement
+include Lambda::Primitive
+include Lambda::Variable
+include Lambda::Statement

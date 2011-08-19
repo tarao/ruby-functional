@@ -5,11 +5,6 @@ module Lambda
   include Functional
 
   Syntax = Proc::Bind::Syntax
-  Syntax.module_eval do
-    def primitive() Kernel.module_eval{ include Lambda::Primitive } end
-    def variable() Kernel.module_eval{ include Lambda::Variable } end
-    def statement() Kernel.module_eval{ include Lambda::Statement } end
-  end
 
   def lambda?(obj)
     return obj.argument_index? if obj.is_a?(Proc::Bind::Variable)
